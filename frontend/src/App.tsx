@@ -2,13 +2,15 @@ import { Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import { login } from './api/auth';
 import './App.css'
-import { Account, Transaction } from './types/user';
+import { Account, Constraint, Goal, Transaction } from './types/user';
 import { createAccount, createTransaction, getAccounts } from './api/finance';
+import { createGoal, getGoalProgress, getGoals } from './api/goals';
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   const handleLogin = async () => {
     try {
@@ -50,6 +52,49 @@ const App: React.FC = () => {
     }
   }
 
+  const handleCreateGoal = async () => {
+    if (!token || !accounts.length) return;
+
+    try {
+      const constraints: Constraint[] = [
+        { type: 'min', value: 200 },
+        { type: 'percentage', value: 25},
+      ];
+
+      const goal = await createGoal(
+        token,
+        'Investing',
+        500,
+        '2025-04-01',
+        accounts[0]._id,
+        constraints
+      );
+      setGoals([...goals, goal]);
+    } catch (error) {
+      console.error('Goal creation failed:', error);
+    }
+  }
+
+  const handleGetGoals = async () => {
+    if (!token) return;
+    try {
+      const fetchedGoals = await getGoals(token);
+      setGoals(fetchedGoals);
+    } catch (error) {
+      console.error('Fetching goals failed: ', error);
+    }
+  }
+
+  const handleGetProgress = async (goalId: string) => {
+    if (!token) return;
+    try {
+      const { progress } = await getGoalProgress(token, goalId);
+      console.log(`Progress for goal with id=${goalId} is $${progress}`); 
+    } catch (error) {
+      console.error('Fetching goal\'s progress failed: ', error);
+    }
+  }
+
   return (
     <div>
       <h1>funds.io</h1>
@@ -57,6 +102,8 @@ const App: React.FC = () => {
       <button onClick={handleCreateAccount}>Create Food Account</button>
       <button onClick={handleGetAccounts}>Get Accounts</button>
       <button onClick={handleCreateTransaction}>Add $50 Grocery expense</button>
+      <button onClick={handleCreateGoal}>Create Goal</button>
+      <button onClick={handleGetGoals}>Get Goals</button>
       <p>Token: {token || 'Not logged in'}</p>
       <h2>Accounts</h2>
       <ul>
@@ -66,11 +113,12 @@ const App: React.FC = () => {
           </li>
         ))}
       </ul>
-      <h2>Transactions</h2>
+      <h2>Goals</h2>
       <ul>
-        {transactions.map((tx) => (
-          <li key={tx._id}>
-            {tx.type}: ${tx.amount} ({tx.category})
+        {goals.map((goal) => (
+          <li key={goal._id}>
+            {goal.name} - Target: ${goal.targetAmount} | Progress: ${goal.progress}
+            <button onClick={() => handleGetProgress(goal._id)}>Check progress</button>
           </li>
         ))}
       </ul>

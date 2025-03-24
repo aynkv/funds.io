@@ -113,3 +113,21 @@ export interface Transaction {
      */
     date: string;
 };
+
+export interface Constraint {
+    type: 'min' | 'max' | 'percentage';
+    value: number;
+    accountId?: string;
+};
+
+export interface Goal {
+    _id: string;
+    userId: string;
+    name: string;
+    targetAmount: number;
+    deadline?: string;
+    accountId?: string;
+    constraints: Constraint[];
+    progress: number;
+    createdAt: string;
+};

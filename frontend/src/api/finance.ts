@@ -1,7 +1,6 @@
 import axios from "axios";
 import { Account, Transaction } from "../types/user";
-
-const API_URL = 'http://localhost:5000/api';
+import { API_URL } from "../../constants/app-constants";
 
 /**
  * Returns the configuration object for axios requests with the authorization header.

@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const goalRoutes = require('./routes/goalRoutes');
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ connectDB();
 app.use('/api', userRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/goals', goalRoutes)
 
 app.get('/', (req, res) => {
     res.send('funds.io backend');
