@@ -114,20 +114,112 @@ export interface Transaction {
     date: string;
 };
 
+/**
+ * Represents a constraint on an account.
+ */
 export interface Constraint {
+    /**
+     * Type of the constraint, either 'min', 'max', or 'percentage'.
+     */
     type: 'min' | 'max' | 'percentage';
+
+    /**
+     * Value of the constraint.
+     */
     value: number;
+
+    /**
+     * Optional unique identifier for the account associated with the constraint.
+     */
     accountId?: string;
 };
 
+/**
+ * Represents a financial goal for a user.
+ */
 export interface Goal {
+    /**
+     * Unique identifier for the goal.
+     */
     _id: string;
+
+    /**
+     * Unique identifier for the user who owns the goal.
+     */
     userId: string;
+
+    /**
+     * Name of the goal.
+     */
     name: string;
+
+    /**
+     * Target amount of money to achieve the goal.
+     */
     targetAmount: number;
+
+    /**
+     * Optional deadline for achieving the goal.
+     */
     deadline?: string;
+
+    /**
+     * Optional unique identifier for the account associated with the goal.
+     */
     accountId?: string;
+
+    /**
+     * List of constraints associated with the goal.
+     */
     constraints: Constraint[];
+
+    /**
+     * Progress towards achieving the goal.
+     */
     progress: number;
+
+    /**
+     * Date and time when the goal was created.
+     */
+    createdAt: string;
+};
+
+/**
+ * Represents a notification for a user.
+ */
+export interface Notification {
+    /**
+     * Unique identifier for the notification.
+     */
+    _id: string;
+
+    /**
+     * Unique identifier for the user who received the notification.
+     */
+    userId: string;
+
+    /**
+     * Message content of the notification.
+     */
+    message: string;
+
+    /**
+     * Type of the notification, either 'budget', 'goal', or 'general'.
+     */
+    type: 'budget' | 'goal' | 'general';
+
+    /**
+     * Optional unique identifier for the related entity (e.g., goal or budget).
+     */
+    relatedId?: string;
+
+    /**
+     * Indicates whether the notification has been read.
+     */
+    read: boolean;
+
+    /**
+     * Date and time when the notification was created.
+     */
     createdAt: string;
 };

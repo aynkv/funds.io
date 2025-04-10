@@ -16,7 +16,21 @@ router.get('/', authMiddleware, async (req, res) => {
 // Create a new account
 router.post('/', authMiddleware, async (req, res) => {
     const { name, budget } = req.body;
+    const io = req.app.get('io');
     try {
+        const existingAccount = await Account.findOne({ userId: req.user.id, name });
+        if (existingAccount) {
+            const notification = new Notification({
+                userId: req.user.id,
+                message: `Account "${name}" already exists for your profile`,
+                type: 'general',
+                relatedId: existingAccount._id,
+            });
+            await notification.save();
+            io.to(req.user.id.toString()).emit('newNotification', notification);
+            return res.status(400).json({ message: `Account "${name}" already exists` });
+        }
+        
         const account = new Account({
             userId: req.user.id,
             name,

@@ -15,7 +15,26 @@ router.get('/', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
     const { name, targetAmount, deadline, accountId, constraints } = req.body;
+    const io = req.app.get('io');
     try {
+        const existingGoal = await Goal.findOne({
+            userId: req.user.id,
+            name,
+            targetAmount
+        });
+
+        if (existingGoal) {
+            const notification = new Notification({
+                userId: req.user.id,
+                message: `Goal "${name}" with target $${targetAmount} already exists.`,
+                type: 'goal',
+                relatedId: existingGoal._id,
+            });
+            await notification.save();
+            io.to(req.user.id.toString()).emit('newNotification', notification);
+            return res.status(400).json({ message: `Goal "${name}" with target $${targetAmount} already exists.` });
+        }
+
         const goal = new Goal({
             userId: req.user.id,
             name,

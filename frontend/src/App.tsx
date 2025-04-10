@@ -1,20 +1,47 @@
 import { Routes, Route } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { login } from './api/auth';
 import './App.css'
-import { Account, Constraint, Goal, Transaction } from './types/user';
+import { Account, Constraint, Goal, Notification, Transaction } from './types/user';
 import { createAccount, createTransaction, getAccounts } from './api/finance';
 import { createGoal, getGoalProgress, getGoals } from './api/goals';
+import { io } from 'socket.io-client';
+import { getNotifications, markNotificationRead } from './api/notifications';
+
+const socket = io('http://localhost:5000', {
+  autoConnect: false,
+  auth: { userId: '' }
+});
 
 const App: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    if (token) {
+      socket.auth = { userId: token }; // TODO: think on this
+      socket.connect();
+      socket.on('newTransaction', (tx: Transaction) => {
+        setTransactions((prev) => [...prev, tx]);
+      });
+      socket.on('newNotification', (notification: Notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+      });
+
+      return () => {
+        socket.off('newTransaction');
+        socket.off('newNotification');
+        socket.disconnect();
+      }
+    }
+  }, [token]);
 
   const handleLogin = async () => {
     try {
-      const response = await login('test@example.com', 'password123');
+      const response = await login('admin@funds.com', 'admin');
       setToken(response.token);
       console.log('Logged in: ', response.user);
     } catch (error) {
@@ -43,10 +70,9 @@ const App: React.FC = () => {
   }
 
   const handleCreateTransaction = async () => {
-    if (!token) return;
+    if (!token || !accounts.length) return;
     try {
-      const transaction = await createTransaction(token, accounts[0]._id, 'expense', 50, 'Groceries');
-      setTransactions([...transactions, transaction]);
+      await createTransaction(token, accounts[0]._id, 'expense', 70, 'Groceries');
     } catch (error) {
       console.error('Transaction creation failed: ', error);
     }
@@ -58,7 +84,7 @@ const App: React.FC = () => {
     try {
       const constraints: Constraint[] = [
         { type: 'min', value: 200 },
-        { type: 'percentage', value: 25},
+        { type: 'percentage', value: 25 },
       ];
 
       const goal = await createGoal(
@@ -89,9 +115,29 @@ const App: React.FC = () => {
     if (!token) return;
     try {
       const { progress } = await getGoalProgress(token, goalId);
-      console.log(`Progress for goal with id=${goalId} is $${progress}`); 
+      console.log(`Progress for goal with id=${goalId} is $${progress}`);
     } catch (error) {
       console.error('Fetching goal\'s progress failed: ', error);
+    }
+  }
+
+  const handleGetNotifications = async () => {
+    if (!token) return;
+    try {
+      const fetchedNotifications = await getNotifications(token);
+      setNotifications(fetchedNotifications);
+    } catch (error) {
+      console.error('Fetching notifications failed: ', error);
+    }
+  }
+
+  const handleMarkRead = async (id: string) => {
+    if (!token) return;
+    try {
+      const updated = await markNotificationRead(token, id);
+      setNotifications((prev) => prev.map((n) => (n._id === id ? updated : n)));
+    } catch (error) {
+      console.error('Reading notification failed: ', error);
     }
   }
 
@@ -101,9 +147,10 @@ const App: React.FC = () => {
       <button onClick={handleLogin}>Test Login</button>
       <button onClick={handleCreateAccount}>Create Food Account</button>
       <button onClick={handleGetAccounts}>Get Accounts</button>
-      <button onClick={handleCreateTransaction}>Add $50 Grocery expense</button>
+      <button onClick={handleCreateTransaction}>Add $60 Grocery expense</button>
       <button onClick={handleCreateGoal}>Create Goal</button>
       <button onClick={handleGetGoals}>Get Goals</button>
+      <button onClick={handleGetNotifications}>Get Notifications</button>
       <p>Token: {token || 'Not logged in'}</p>
       <h2>Accounts</h2>
       <ul>
@@ -119,6 +166,15 @@ const App: React.FC = () => {
           <li key={goal._id}>
             {goal.name} - Target: ${goal.targetAmount} | Progress: ${goal.progress}
             <button onClick={() => handleGetProgress(goal._id)}>Check progress</button>
+          </li>
+        ))}
+      </ul>
+      <h2>Notifications</h2>
+      <ul>
+        {notifications.map((notification) => (
+          <li key={notification._id}>
+            {notification.message} - {notification.read ? 'Read' : 'Unread'}
+            {!notification.read && <button onClick={() => handleMarkRead(notification._id)}>Mark Read</button>}
           </li>
         ))}
       </ul>
