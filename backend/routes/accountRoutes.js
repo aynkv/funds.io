@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 const Account = require('../models/Account');
+const Notification = require('../models/Notification')
 
 // Get all accounts for the authenticated user
 router.get('/', authMiddleware, async (req, res) => {
