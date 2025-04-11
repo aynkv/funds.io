@@ -20,7 +20,7 @@ export const getGoals = async (token: string) => {
 export const createGoal = async (
     token: string,
     name: string,
-    targetAmount: Number,
+    targetAmount: number,
     deadline?: string,
     accountId?: string,
     constraints: Constraint[] = []
@@ -36,5 +36,5 @@ export const createGoal = async (
 
 export const getGoalProgress = async (token: string, goalId: string) => {
     const response = await axios.get(`${API_URL}/goals/${goalId}/progress`, getConfig(token));
-    return response.data as { goal: Goal, progress: Number };
+    return response.data as { goal: Goal, progress: number };
 }
