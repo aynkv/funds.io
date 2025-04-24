@@ -1,9 +1,14 @@
+import { Link } from 'react-router-dom';
+import '../css/Home.css';
 function Home() {
     return (
-        <div>
-            <h1>Welcome to funds.io</h1>
-            <p>Create accounts for your every need, set goals and stay in control of your finances</p>
-        </div>
+        <main>
+            <div className="jumbotron">
+                <h1>Welcome to funds.io</h1>
+                <p>Create accounts for your every need, set goals and stay in control of your finances</p>
+                <Link id="redirect-btn" to={"/login"}>Start Now</Link>
+            </div>
+        </main>
     )
 }
 
