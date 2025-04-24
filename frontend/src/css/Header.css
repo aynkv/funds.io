@@ -1,0 +1,38 @@
+header {
+    padding: 1rem 2rem;
+    background-color: #141619;
+    color: white;
+}
+
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+header nav a,
+header nav button {
+    background-color: #0A21C0;
+    color: white;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+header nav button:hover,
+header nav a:hover {
+    background-color: #1a3cff;
+}
+
+.guestButtons {
+    display: flex;
+    gap: 0.5rem;
+}
