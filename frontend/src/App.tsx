@@ -15,6 +15,7 @@ import Notifications from './pages/Notifications';
 import Users from './pages/Users';
 import { Notification, Transaction } from './types/user';
 import { getTransactions } from './api/finance';
+import Footer from './components/Footer';
 
 const socket = io('http://localhost:5000', {
   autoConnect: false,
@@ -32,7 +33,7 @@ function App() {
       fetchTransactions();
       socket.auth = { userId: token }; // TODO: think on this
       socket.connect();
-      
+
       socket.on('newTransaction', (tx: Transaction) => {
         setTransactions((prev) => [...prev, tx]);
       });
@@ -73,38 +74,41 @@ function App() {
   }
 
   return (
-    <div>
-      <Header token={token} onLogout={handleLogout} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login onLogin={handleLogin} />} />
-        <Route path="/register" element={<Register onRegister={handleLogin} />} />
-        <Route path="/about" element={<About />} />
-        <Route
-          path="/tracker"
-          element={token ? <Tracker token={token} transactions={transactions} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/summary"
-          element={token ? <Summary /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/personal"
-          element={token ? <Profile /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/dashboard"
-          element={token ? <Dashboard token={token} /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/notifications"
-          element={token ? <Notifications /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/users"
-          element={token ? <Users /> : <Navigate to="/login" />}
-        />
-      </Routes>
+    <div className="page-container">
+      <div className="content-wrap">
+        <Header token={token} onLogout={handleLogout} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/register" element={<Register onRegister={handleLogin} />} />
+          <Route path="/about" element={<About />} />
+          <Route
+            path="/tracker"
+            element={token ? <Tracker token={token} transactions={transactions} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/summary"
+            element={token ? <Summary /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/personal"
+            element={token ? <Profile /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/dashboard"
+            element={token ? <Dashboard token={token} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/notifications"
+            element={token ? <Notifications /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/users"
+            element={token ? <Users /> : <Navigate to="/login" />}
+          />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   );
 };

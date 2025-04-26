@@ -1,0 +1,13 @@
+.footer-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+footer {
+    margin-top: auto;
+    padding: 2rem;
+    background-color: #0A21C0;
+    color: white;
+    font-weight: 400;
+}
