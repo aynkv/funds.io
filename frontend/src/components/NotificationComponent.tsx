@@ -1,7 +1,7 @@
 import { Notification } from "../types/user";
 import "../css/Notifications.css";
-import { FaEye } from 'react-icons/fa';
 import { useState } from "react";
+import { FaEye } from "react-icons/fa";
 
 interface NotificationProps {
     notification: Notification;

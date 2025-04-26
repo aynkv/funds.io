@@ -1,0 +1,38 @@
+.summary-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.summary-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.summary-header h1 {
+    color: #0A21C0;
+}
+
+.summary-section {
+    margin-bottom: 3rem;
+}
+
+.summary-section h2 {
+    margin-bottom: 1rem;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.chart-container {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pie-chart {
+    max-height: 350px;
+    display: flex;
+    justify-content: center;
+}

@@ -16,6 +16,7 @@ import Users from './pages/Users';
 import { Notification, Transaction } from './types/user';
 import { getTransactions } from './api/finance';
 import Footer from './components/Footer';
+import { getNotifications } from './api/notifications';
 
 const socket = io('http://localhost:5000', {
   autoConnect: false,
@@ -30,7 +31,7 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      fetchTransactions();
+      fetchInitialData();
       socket.auth = { userId: token }; // TODO: think on this
       socket.connect();
 
@@ -50,13 +51,23 @@ function App() {
     }
   }, [token]);
 
-  const fetchTransactions = async () => {
+  const fetchInitialData = async () => {
     try {
-      const fetchedTransactions = await getTransactions(token!);
+      const [fetchedTransactions, fetchedNotifications] = await Promise.all([
+        getTransactions(token!),
+        getNotifications(token!),
+      ]);
       setTransactions(fetchedTransactions);
+      setNotifications(fetchedNotifications);
     } catch (error) {
-      console.error('Failed to fetch transactions: ', error);
+      console.error('Failed to fetch initial data:', error);
     }
+  }
+
+  function updateNotifications(updated: Notification) {
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === updated._id ? updated : n))
+    );
   }
 
   const handleLogin = (newToken: string) => {
@@ -92,11 +103,19 @@ function App() {
           />
           <Route
             path="/notifications"
-            element={token ? <Notifications token={token} /> : <Navigate to="/login" />}
+            element=
+            {token ? (<Notifications
+              token={token}
+              notifications={notifications}
+              onUpdateNotifications={updateNotifications}
+            />
+            ) : (
+              <Navigate to="/login" />
+            )}
           />
           <Route
             path="/summary"
-            element={token ? <Summary /> : <Navigate to="/login" />}
+            element={token ? <Summary token={token} transactions={transactions} /> : <Navigate to="/login" />}
           />
           <Route
             path="/personal"

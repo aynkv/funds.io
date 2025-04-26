@@ -4,6 +4,10 @@
     padding: 0 1rem;
 }
 
+.notifications-container h1 {
+    color: #0A21C0;
+}
+
 .notification-card {
     background-color: white;
     border-radius: 8px;
