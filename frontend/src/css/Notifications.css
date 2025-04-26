@@ -1,0 +1,78 @@
+.notifications-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.notification-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-left: 5px solid var(--border-color);
+    transition: background-color 0.3s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    opacity: 1;
+}
+
+.notifications-card.fading {
+    opacity: 0.4;
+}
+
+.notification-card.unread {
+    background-color: #f0f8ff;
+}
+
+.notification-content {
+    /* flex: 1; */
+    margin-left: 1rem;
+}
+
+.notification-message {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.notification-date {
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.notification-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-right: 1rem;
+    padding: 0.5rem;
+    border-radius: 30%;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-button:hover {
+    background-color: #ccddee;
+    transform: scale(1.1);
+}
+
+.notification-button.eye-button {
+    font-size: 1rem;
+    color: #0A21C0;
+}
+
+.notification-card.budget {
+    --border-color: #ff6b6b;
+}
+
+.notification-card.goal {
+    --border-color: #4caf50;
+}
+
+.notification-card.general {
+    --border-color: #2196f3;
+}

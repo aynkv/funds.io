@@ -18,6 +18,7 @@ header nav {
 
 header nav a,
 header nav button {
+    font-size: 16px;
     font-weight: 500;
     background-color: #0A21C0;
     color: white;

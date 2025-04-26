@@ -87,20 +87,20 @@ function App() {
             element={token ? <Tracker token={token} transactions={transactions} /> : <Navigate to="/login" />}
           />
           <Route
+            path="/dashboard"
+            element={token ? <Dashboard token={token} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/notifications"
+            element={token ? <Notifications token={token} /> : <Navigate to="/login" />}
+          />
+          <Route
             path="/summary"
             element={token ? <Summary /> : <Navigate to="/login" />}
           />
           <Route
             path="/personal"
             element={token ? <Profile /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/dashboard"
-            element={token ? <Dashboard token={token} /> : <Navigate to="/login" />}
-          />
-          <Route
-            path="/notifications"
-            element={token ? <Notifications /> : <Navigate to="/login" />}
           />
           <Route
             path="/users"

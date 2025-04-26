@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import '../css/Header.css'
 
 interface HeaderProps {
@@ -7,11 +7,8 @@ interface HeaderProps {
 }
 
 function Header({ token, onLogout }: HeaderProps) {
-    const navigate = useNavigate();
-
     const handleLogout = () => {
         onLogout();
-        navigate('/login');
     };
 
     return (
@@ -23,9 +20,9 @@ function Header({ token, onLogout }: HeaderProps) {
                     {token && (
                         <>
                             <Link to="/tracker">Tracker</Link>
-                            <Link to="/summary">Summary</Link>
                             <Link to="/dashboard">Dashboard</Link>
                             <Link to="/notifications">Notifications</Link>
+                            <Link to="/summary">Summary</Link>
                         </>
                     )}
                 </div>
@@ -33,7 +30,7 @@ function Header({ token, onLogout }: HeaderProps) {
                     {token ? (
                         <>
                             <Link to="/personal">Profile</Link>
-                            <button onClick={handleLogout}>Logout</button>
+                            <Link to="/" onClick={handleLogout}>Logout</Link>
                         </>
                     ) : (
                         <div className="guestButtons">
