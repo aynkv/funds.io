@@ -6,7 +6,7 @@ function Home() {
             <div className="jumbotron">
                 <h1>Welcome to funds.io</h1>
                 <p>Create accounts for your every need, set goals and stay in control of your finances</p>
-                <Link id="redirect-btn" to={"/login"}>Start Now</Link>
+                <Link id="redirect-btn" to={"/register"}>Start Now</Link>
             </div>
         </main>
     )
