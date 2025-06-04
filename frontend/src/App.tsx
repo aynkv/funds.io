@@ -17,19 +17,22 @@ import { Notification, Transaction } from './types/user';
 import { getTransactions } from './api/finance';
 import Footer from './components/Footer';
 import { getNotifications } from './api/notifications';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { setLogoutFunction } from './api/axios';
 
 const socket = io('http://localhost:5000', {
   autoConnect: false,
   auth: { userId: '' }
 });
 
-function App() {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+function AppContent() {
+  const {token, logout} = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLogoutFunction(logout);
     if (token) {
       fetchInitialData();
       socket.auth = { userId: token }; // TODO: think on this
@@ -70,28 +73,14 @@ function App() {
     );
   }
 
-  const handleLogin = (newToken: string) => {
-    setToken(newToken);
-    localStorage.setItem('token', newToken);
-    navigate('/tracker');
-  }
-
-  const handleLogout = () => {
-    setToken(null);
-    localStorage.removeItem('token');
-    socket.disconnect();
-    setTransactions([]);
-    setNotifications([]);
-  }
-
   return (
     <div className="page-container">
       <div className="content-wrap">
-        <Header token={token} onLogout={handleLogout} />
+        <Header token={token} onLogout={logout} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/register" element={<Register onRegister={handleLogin} />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<About />} />
           <Route
             path="/tracker"
@@ -131,5 +120,13 @@ function App() {
     </div>
   );
 };
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  )
+}
 
 export default App;

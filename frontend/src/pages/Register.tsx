@@ -1,13 +1,11 @@
 import RegisterForm from "../components/RegisterForm";
+import { useAuth } from "../context/AuthContext";
 
-interface RegisterProps {
-    onRegister: (token: string) => void;
-}
-
-function Register({ onRegister }: RegisterProps) {
+function Register() {
+    const { login } = useAuth();
     return (
         <div>
-            <RegisterForm onRegister={onRegister} />
+            <RegisterForm onRegister={login} />
         </div>
     )
 }

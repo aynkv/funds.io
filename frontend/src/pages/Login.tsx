@@ -1,13 +1,11 @@
 import LoginForm from '../components/LoginForm';
+import { useAuth } from '../context/AuthContext';
 
-interface LoginProps {
-    onLogin: (token: string) => void;
-}
-
-function Login({ onLogin }: LoginProps) {
+function Login() {
+    const { login } = useAuth();
     return (
         <div>
-            <LoginForm onLogin={onLogin} />
+            <LoginForm onLogin={login} />
         </div>
     )
 }

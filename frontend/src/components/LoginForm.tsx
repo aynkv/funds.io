@@ -13,6 +13,7 @@ function LoginForm({ onLogin }: LoginProps) {
     const [errors, setErrors] = useState
         <{ email?: string; name?: string, password?: string }>({});
 
+    // TODO: redundant code
     const validateEmail = (value: string) => {
         if (!value) return 'Email is required.';
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
