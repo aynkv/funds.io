@@ -18,16 +18,19 @@ function Header({ token, onLogout }: HeaderProps) {
         <header>
             <nav>
                 <div className="nav-left">
-                    <Link to="/">Home</Link>
-                    <Link to="/about">About</Link>
-                    {token && (
+                    {token ? (
                         <>
                             <Link to="/tracker">Tracker</Link>
                             <Link to="/dashboard">Dashboard</Link>
                             <Link to="/notifications">Notifications</Link>
                             <Link to="/summary">Summary</Link>
                         </>
-                    )}
+                    ) :
+                        <>
+                            <Link to="/">Home</Link>
+                            <Link to="/about">About</Link>
+                        </>
+                    }
                 </div>
                 <div className="nav-right">
                     {token ? (

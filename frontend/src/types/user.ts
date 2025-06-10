@@ -5,7 +5,7 @@ export interface User {
     /**
      * Unique identifier for the user.
      */
-    id: string;
+    _id: string;
 
     /**
      * Email address of the user.

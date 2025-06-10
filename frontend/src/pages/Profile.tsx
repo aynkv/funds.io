@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { User } from "../types/user";
 import { getProfile, updateProfile } from "../api/users";
+import '../css/Profile.css';
 
 function Profile() {
     const { token } = useAuth();
@@ -57,42 +58,47 @@ function Profile() {
 
 
     return (
-        <div>
-            <h1>Profile</h1>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
+        <div className="profile-container">
+            <h1 className="profile-title">Profile</h1>
+            {error && <p className="error-message">{error}</p>}
+            {success && <p className="success-message">{success}</p>}
             {user ? (
-                <form onSubmit={handleUpdateProfile}>
-                    <div>
+                <form onSubmit={handleUpdateProfile} className="profile-form">
+                    <div className="form-group">
                         <label>Email:</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            className="form-input"
+                            disabled
                         />
                     </div>
-                    <div>
+                    <div className="form-group">
                         <label>Name:</label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            className="form-input"
                         />
                     </div>
-                    <div>
+                    <div className="form-group">
                         <label>New Password (optional):</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            className="form-input"
                         />
                     </div>
-                    <button type="submit">Update Profile</button>
+                    <button type="submit" className="submit-button">Update Profile</button>
                 </form>
             ) : (
-                <p>Loading profile...</p>
+                <p className="loading-message">Loading profile...</p>
             )}
         </div>
     );
+
 }
 export default Profile;

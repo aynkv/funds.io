@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
@@ -14,6 +14,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [role, setRole] = useState<string | null>(null);
   const navigate = useNavigate();
+  
+  useEffect(() => {
+    if (token && !role) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setRole(payload.role || 'user');
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        setRole('user');
+      }
+    }
+  }, [token]);
 
   function login(newToken: string) {
     setToken(newToken);
