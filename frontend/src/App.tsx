@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import './App.css'
 import { io } from 'socket.io-client';
@@ -12,13 +12,13 @@ import Summary from './pages/Summary';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Notifications from './pages/Notifications';
-import Users from './pages/Users';
 import { Notification, Transaction } from './types/user';
 import { getTransactions } from './api/finance';
 import Footer from './components/Footer';
 import { getNotifications } from './api/notifications';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { setLogoutFunction } from './api/axios';
+import Admin from './pages/Admin';
 
 const socket = io('http://localhost:5000', {
   autoConnect: false,
@@ -26,10 +26,9 @@ const socket = io('http://localhost:5000', {
 });
 
 function AppContent() {
-  const {token, logout} = useAuth();
+  const { token, logout } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     setLogoutFunction(logout);
@@ -112,7 +111,7 @@ function AppContent() {
           />
           <Route
             path="/users"
-            element={token ? <Users /> : <Navigate to="/login" />}
+            element={token ? <Admin /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>

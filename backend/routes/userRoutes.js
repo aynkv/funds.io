@@ -69,7 +69,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 });
 
 // Update active user profile
-router.put('/me', authMiddleware, async (req, res) => {
+router.put('/profile', authMiddleware, async (req, res) => {
     const { email, name, password } = req.body;
     try {
         const user = await User.findById(req.user.id);

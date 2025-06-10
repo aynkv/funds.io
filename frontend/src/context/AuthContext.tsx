@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   token: string | null;
+  role: string | null;
   login: (newToken: string) => void;
   logout: (errorMessage?: string) => void;
 }
@@ -11,22 +12,31 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [role, setRole] = useState<string | null>(null);
   const navigate = useNavigate();
 
   function login(newToken: string) {
     setToken(newToken);
     localStorage.setItem('token', newToken);
+    try {
+      const payload = JSON.parse(atob(newToken.split('.')[1]));
+      setRole(payload.role || 'user');
+    } catch (err) {
+      console.error('Failed to decode token:', err);
+      setRole('user');
+    }
     navigate('/tracker');
   }
 
   function logout(errorMessage?: string) {
     setToken(null);
+    setRole(null);
     localStorage.removeItem('token');
     navigate('/login', { state: { error: errorMessage } });
   }
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, role, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

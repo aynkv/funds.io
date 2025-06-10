@@ -11,13 +11,13 @@ const getConfig = (token: string) => ({
 });
 
 export async function getProfile(token: string) {
-  const response = await axios.get(`${API_URL}/users/profile`, getConfig(token));
+  const response = await axios.get(`${API_URL}/profile`, getConfig(token));
   return response.data;
 }
 
 export async function updateProfile(token: string, 
     data: { email?: string; name?: string; password?: string }) {
-  const response = await axios.put(`${API_URL}/users/profile`, data, getConfig(token));
+  const response = await axios.put(`${API_URL}/profile`, data, getConfig(token));
   return response.data;
 }
 

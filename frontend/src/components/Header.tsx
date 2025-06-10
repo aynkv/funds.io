@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import '../css/Header.css'
+import { useAuth } from "../context/AuthContext";
 
 interface HeaderProps {
     token: string | null;
@@ -7,6 +8,8 @@ interface HeaderProps {
 }
 
 function Header({ token, onLogout }: HeaderProps) {
+    const { role } = useAuth();
+
     const handleLogout = () => {
         onLogout();
     };
@@ -29,6 +32,7 @@ function Header({ token, onLogout }: HeaderProps) {
                 <div className="nav-right">
                     {token ? (
                         <>
+                            {role === 'admin' && <Link to="/users">Users</Link>}
                             <Link to="/personal">Profile</Link>
                             <Link to="/" onClick={handleLogout}>Logout</Link>
                         </>
