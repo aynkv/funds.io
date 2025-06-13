@@ -39,7 +39,8 @@ function Admin() {
       const s = search.toLowerCase();
       filtered = filtered.filter(
         (u) =>
-          u.name.toLowerCase().includes(s) ||
+          u.firstName.toLowerCase().includes(s) ||
+          u.lastName.toLowerCase().includes(s) ||
           u.email.toLowerCase().includes(s)
       );
     }
@@ -106,7 +107,8 @@ function Admin() {
         <tbody>
           {filteredUsers.map((user) => (
             <tr key={user._id}>
-              <td className="admin-td">{user.name}</td>
+              <td className="admin-td">{user.firstName}</td>
+              <td className="admin-td">{user.lastName}</td>
               <td className="admin-td">{user.email}</td>
               <td className="admin-td">{user.role}</td>
               <td className="admin-td">

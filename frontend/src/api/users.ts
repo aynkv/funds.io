@@ -16,7 +16,7 @@ export async function getProfile(token: string) {
 }
 
 export async function updateProfile(token: string, 
-    data: { email?: string; name?: string; password?: string }) {
+    data: { email?: string; firstName?: string; lastName?: string; password?: string }) {
   const response = await axios.put(`${API_URL}/profile`, data, getConfig(token));
   return response.data;
 }

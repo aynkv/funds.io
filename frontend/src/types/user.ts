@@ -13,9 +13,14 @@ export interface User {
     email: string;
 
     /**
-     * Name of the user.
+     * First name of the user.
      */
-    name: string;
+    firstName: string;
+
+    /**
+     * Last name of the user.
+     */
+    lastName: string;
 
     /**
      * Role of the user, either 'user' or 'admin'.

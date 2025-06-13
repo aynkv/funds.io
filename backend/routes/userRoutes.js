@@ -90,7 +90,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 
 // Update active user profile
 router.put('/profile', authMiddleware, async (req, res) => {
-    const { email, name, password } = req.body;
+    const { email, firstName, lastName, password } = req.body;
     try {
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -98,19 +98,23 @@ router.put('/profile', authMiddleware, async (req, res) => {
         };
 
         if (email) {
-            user.email = email
+            user.email = email;
         };
-        
-        if (name) {
-            user.name = name
+
+        if (firstName) {
+            user.firstName = firstName;
         };
-        
+
+        if (lastName) {
+            user.lastName = lastName;
+        };
+
         if (password) {
-            user.password = password
+            user.password = password;
         };
 
         await user.save();
-        res.json({ message: 'Profile updated', user: { _id: user._id, email: user.email, name: user.name, role: user.role } });
+        res.json({ message: 'Profile updated', user: { _id: user._id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role } });
     } catch (error) {
         res.status(500).json({ message: 'Server error' });
     }

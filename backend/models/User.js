@@ -8,17 +8,19 @@ const bcrypt = require('bcryptjs');
  * 
  * @typedef {Object} User
  * @property {string} email - User's email address, required and unique.
- * @property {string} name - User's name, required.
  * @property {string} password - User's password, required.
+ * @property {string} firstName - User's first name, optional.
+ * @property {string} lastName - User's last name, optional.
  * @property {string} role - User's role, either 'user' or 'admin', defaults to 'user'.
  * @property {Date} createdAt - Timestamp of user creation, defaults to current date.
  */
 const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
-    name: { type: String, required: true },
     password: { type: String, required: true },
+    firstName: { type: String, required: false },
+    lastName: { type: String, required: false },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
-    createdAt: {type: Date, default: Date.now },
+    createdAt: { type: Date, default: Date.now },
 });
 
 /**

@@ -1,6 +1,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { login } from "../api/auth";
 import "../css/Form.css";
+import { validateEmail } from "../util";
 
 interface LoginProps {
     onLogin: (token: string) => void;
@@ -12,16 +13,6 @@ function LoginForm({ onLogin }: LoginProps) {
     const [error, setError] = useState('');
     const [errors, setErrors] = useState
         <{ email?: string; name?: string, password?: string }>({});
-
-    // TODO: redundant code
-    const validateEmail = (value: string) => {
-        if (!value) return 'Email is required.';
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value)) {
-            return "Invalid email format."
-        }
-        return "";
-    }
 
     const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;

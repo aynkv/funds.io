@@ -8,7 +8,8 @@ function Profile() {
     const { token } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -23,7 +24,8 @@ function Profile() {
                 const profile = await getProfile(token);
                 setUser(profile);
                 setEmail(profile.email);
-                setName(profile.name);
+                setFirstName(profile.firstName);
+                setLastName(profile.lastName);
             }
         } catch (err: any) {
             setError(err.message || 'Failed to load profile');
@@ -36,9 +38,10 @@ function Profile() {
         setSuccess('');
         try {
             if (token) {
-                const updateData: { email?: string; name?: string; password?: string } = {};
+                const updateData: { email?: string; firstName?: string; lastName?: string, password?: string } = {};
                 if (email && email !== user?.email) updateData.email = email;
-                if (name && name !== user?.name) updateData.name = name;
+                if (firstName && firstName !== user?.firstName) updateData.firstName = firstName;
+                if (lastName && lastName !== user?.lastName) updateData.lastName = lastName;
                 if (password) updateData.password = password;
 
                 if (Object.keys(updateData).length === 0) {
@@ -75,11 +78,20 @@ function Profile() {
                         />
                     </div>
                     <div className="form-group">
-                        <label>Name:</label>
+                        <label>First Name:</label>
                         <input
                             type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label>Last Name:</label>
+                        <input
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             className="form-input"
                         />
                     </div>
