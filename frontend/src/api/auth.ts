@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { AuthResponse } from '../types/user';
+import { AuthResponse } from '../types/types';
 import { API_URL } from '../../constants/app-constants';
 
 export const register = async (email: string, password: string) => {

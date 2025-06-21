@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../../constants/app-constants";
-import { Notification } from "../types/user";
+import { Notification } from "../types/types";
 
 const getConfig = (token: string) => ({
     headers: { Authorization: `Bearer ${token}` },

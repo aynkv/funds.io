@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getAccounts, getTransactions } from '../api/finance';
 import { getGoals, getGoalProgress } from '../api/goals';
 import { getNotifications } from '../api/notifications';
-import { Account, Goal, Notification, Transaction } from '../types/user';
+import { Account, Goal, Notification, Transaction } from '../types/types';
 
 function Dashboard({ token }: { token: string }) {
     const [accounts, setAccounts] = useState<Account[]>([]);

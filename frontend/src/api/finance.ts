@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Account, Transaction } from "../types/user";
+import { Account, Transaction } from "../types/types";
 import { API_URL } from "../../constants/app-constants";
 
 /**

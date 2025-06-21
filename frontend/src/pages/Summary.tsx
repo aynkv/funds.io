@@ -12,7 +12,7 @@ import {
 } from 'chart.js';
 import { getAccounts } from '../api/finance';
 import { useEffect, useState } from 'react';
-import { Account, Goal, Transaction } from '../types/user';
+import { Account, Goal, Transaction } from '../types/types';
 import { getGoalProgress, getGoals } from '../api/goals';
 import { Bar, Line, Pie } from 'react-chartjs-2';
 import "../css/Summary.css";

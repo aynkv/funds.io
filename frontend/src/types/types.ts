@@ -89,9 +89,8 @@ export interface Transaction {
 
     /**
      * Unique identifier for the account associated with the transaction.
-     * Can be a string or an Account object.
      */
-    accountId: string | Account;
+    accountId: Account;
 
     /**
      * Type of the transaction, either 'income' or 'expense'.

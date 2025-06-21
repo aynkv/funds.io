@@ -1,4 +1,4 @@
-import { Notification } from "../types/user";
+import { Notification } from "../types/types";
 import { markNotificationRead } from "../api/notifications";
 import NotificationComponent from "../components/NotificationComponent";
 import "../css/Notifications.css";

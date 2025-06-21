@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Goal, Constraint } from "../types/user";
+import { Goal, Constraint } from "../types/types";
 import { API_URL } from "../../constants/app-constants";
 
 /**

@@ -1,4 +1,4 @@
-import { Notification } from "../types/user";
+import { Notification } from "../types/types";
 import "../css/Notifications.css";
 import { useState } from "react";
 import { FaEye } from "react-icons/fa";

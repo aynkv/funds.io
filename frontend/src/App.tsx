@@ -12,7 +12,7 @@ import Summary from './pages/Summary';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import Notifications from './pages/Notifications';
-import { Notification, Transaction } from './types/user';
+import { Notification, Transaction } from './types/types';
 import { getTransactions } from './api/finance';
 import Footer from './components/Footer';
 import { getNotifications } from './api/notifications';
@@ -83,7 +83,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route
             path="/tracker"
-            element={token ? <Tracker token={token} transactions={transactions} /> : <Navigate to="/login" />}
+            element={token ? <Tracker token={token} /> : <Navigate to="/login" />}
           />
           <Route
             path="/dashboard"
