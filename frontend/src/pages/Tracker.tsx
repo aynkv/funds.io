@@ -1,15 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import '../css/Tracker.css';
 import { createAccount, createTransaction, getAccounts, getTransactions } from '../api/finance';
-import { Constraint, Goal } from '../types/types';
-import { createGoal, getGoals } from '../api/goals';
-import { AccountDto, TransactionDto } from '../api/dto/dtos';
-import { accountToDto, transactionToDto } from '../util';
+import {  Constraint } from '../types/types';
+import { createConstraint, createGoal, getConstraints, getGoals } from '../api/goals';
+import { AccountDto, GoalDto, TransactionDto } from '../api/dto/dtos';
+import { accountToDto, goalToDto, transactionToDto } from '../util';
+
+interface FormData {
+    name?: string;
+    budget?: string;
+    transactionType?: 'income' | 'expense';
+    transactionAmount?: string;
+    accountId: string;
+    transactionCategory?: string;
+    transactionDescription?: string;
+    goalAccountId?: string;
+    goalDeadline?: string;
+    targetAmount?: string;
+    constraintId?: string;
+    newConstraintType?: 'min' | 'max' | 'percentage';
+    newConstraintValue?: string;
+}
 
 function Tracker({ token }: { token: string }) {
     const [accounts, setAccounts] = useState<AccountDto[]>([]);
     const [transactions, setTransactions] = useState<TransactionDto[]>([]);
-    const [goals, setGoals] = useState<Goal[]>([]);
+    const [goals, setGoals] = useState<GoalDto[]>([]);
+    const [constraints, setConstraints] = useState<Constraint[]>([]);
     const [activeTab, setActiveTab] = useState<'accounts' | 'transactions' | 'goals'>('accounts');
     const [sortKey, setSortKey] = useState<string>('id');
     const [sortAsc, setSortAsc] = useState<boolean>(true);
@@ -34,7 +51,12 @@ function Tracker({ token }: { token: string }) {
             setTransactions(transactionDtos);
 
             const fetchedGoals = await getGoals(token);
-            setGoals(fetchedGoals);
+            const goalDtos: GoalDto[] = [];
+            fetchedGoals.forEach(g => goalDtos.push(goalToDto(g)));
+            setGoals(goalDtos);
+
+            const fetchedConstraints = await getConstraints(token);
+            setConstraints(fetchedConstraints);
 
         } catch (error) {
             console.error('Failed to fetch data: ', error);
@@ -72,22 +94,38 @@ function Tracker({ token }: { token: string }) {
         }
     }
 
-    async function handleCreateGoal(constraints: Constraint[], goalName: string, goalTarget: string, goalAccountId: string, goalDeadline: string) {
+    async function handleCreateGoal(form: FormData) {
         try {
-            const cleanedConstraints = constraints.map((c) => ({
-                type: c.type,
-                value: parseFloat(c.value as any),
-                accountId: c.accountId && c.accountId !== '' ? c.accountId : undefined
-            }));
+            if (!form.name || !form.goalAccountId || !form.targetAmount) {
+                throw new Error("Missing required goal fields");
+            }
+
+            let constraintId = form.constraintId;
+
+            if (!constraintId && form.newConstraintType && form.newConstraintValue) {
+                const newConstraint = {
+                    type: form.newConstraintType,
+                    value: parseFloat(form.newConstraintValue),
+                };
+                const response = await createConstraint(token, newConstraint);
+                constraintId = response._id;
+                setConstraints([...constraints, response]);
+            }
+
+            if (!constraintId) {
+                throw new Error('Constraint ID is required');
+            }
+
             const goal = await createGoal(
                 token,
-                goalName,
-                parseFloat(goalTarget),
-                goalDeadline,
-                goalAccountId || undefined,
-                cleanedConstraints
+                form.name,
+                form.goalAccountId,
+                parseFloat(form.targetAmount),
+                constraintId,
+                form.goalDeadline,
             );
-            setGoals([...goals, goal]);
+
+            setGoals([...goals, goalToDto(goal)]);
         } catch (error) {
             console.error('Goal creation failed:', error);
         }
@@ -161,7 +199,7 @@ function Tracker({ token }: { token: string }) {
                 formData.transactionCategory,
                 formData.transactionDescription);
         } else if (activeTab === 'goals') {
-            handleCreateGoal([], formData.name, formData.targetAmount, formData.currentAmount, formData.goalDeadline);
+            handleCreateGoal(formData);
         }
         closeModal();
     };
@@ -219,8 +257,10 @@ function Tracker({ token }: { token: string }) {
                             {activeTab === 'goals' && (
                                 <>
                                     <th onClick={() => toggleSort('name')} className={sortKey === 'name' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Name</th>
+                                    <th onClick={() => toggleSort('progress')} className={sortKey === 'progress' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Current</th>
                                     <th onClick={() => toggleSort('targetAmount')} className={sortKey === 'targetAmount' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Target</th>
-                                    <th onClick={() => toggleSort('currentAmount')} className={sortKey === 'currentAmount' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Current</th>
+                                    <th onClick={() => toggleSort('deadline')} className={sortKey === 'deadline' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Deadline</th>
+                                    <th onClick={() => toggleSort('accountName')} className={sortKey === 'accountName' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Account</th>
                                 </>
                             )}
                         </tr>
@@ -325,23 +365,56 @@ function Tracker({ token }: { token: string }) {
                                         value={formData.targetAmount || ''}
                                         onChange={handleInputChange}
                                         required
+                                        min="0"
+                                        step="0.01"
                                     />
-                                    <input
-                                        type="number"
-                                        name="currentAmount"
-                                        placeholder="Current Amount"
-                                        value={formData.currentAmount || ''}
+                                    <select
+                                        name="goalAccountId"
+                                        value={formData.goalAccountId || ''}
                                         onChange={handleInputChange}
-                                        required
-                                    />
+                                    >
+                                        <option value="">Select Account</option>
+                                        {accounts.map((acc) => (
+                                            <option key={acc._id} value={acc._id}>{acc.name}</option>
+                                        ))}
+                                    </select>
                                     <input
                                         type="date"
                                         name="goalDeadline"
                                         placeholder="Goal Deadline"
                                         value={formData.goalDeadline || ''}
                                         onChange={handleInputChange}
-                                        required
                                     />
+
+                                    <select name="constraintId"
+                                        value={formData.constraintId || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="">Create New Constraint</option>
+                                        {constraints.map(c => (
+                                            <option key={c._id} value={c._id}>{`${c.type} - ${c.value}`}</option>
+                                        ))}
+                                    </select>
+
+                                    <div className="new-constraint">
+                                        <select name="newConstraintType" onChange={handleInputChange}>
+                                            <option value="">Select Constraint Type</option>
+                                            <option value="min">Minimum</option>
+                                            <option value="max">Maximum</option>
+                                            <option value="percentage">Percentage</option>
+                                        </select>
+                                        <input
+                                            type="number"
+                                            name="newConstraintValue"
+                                            placeholder="Constraint Value"
+                                            value={formData.newConstraintValue || ''}
+                                            onChange={handleInputChange}
+                                            required
+                                            min="0"
+                                            step={formData.newConstraintType === 'percentage' ? '0.1' : '0.01'}
+                                        />
+                                    </div>
+
                                 </>
                             )}
                             <button type="submit">Add</button>

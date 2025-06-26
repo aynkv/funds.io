@@ -60,10 +60,10 @@ export const createTransaction = async (
     amount: number,
     category?: string,
     description?: string
-) => {
+) : Promise<Transaction> => {
     const response = await axios.post(`${API_URL}/transactions`,
         { accountId, type, amount, category, description },
         getConfig(token)
     );
-    return response.data as Transaction;
+    return response.data;
 };

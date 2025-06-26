@@ -1,5 +1,5 @@
-import { AccountDto, TransactionDto } from "./api/dto/dtos";
-import { Account, Transaction } from "./types/types";
+import { AccountDto, GoalDto, TransactionDto } from "./api/dto/dtos";
+import { Account, Goal, Transaction } from "./types/types";
 
 export const validateEmail = (value: string) => {
     if (!value) return 'Email is required.';
@@ -44,6 +44,17 @@ export function accountToDto(account: Account): AccountDto {
         name: account.name,
         budget: account.budget,
         createdAt: new Date(account.createdAt).toISOString().split('T')[0],
+    }
+}
+
+export function goalToDto(goal: Goal): GoalDto {
+    return {
+        _id: goal._id,
+        name: goal.name,
+        accountName: goal.accountId,
+        targetAmount: goal.targetAmount,
+        deadline: goal.deadline ? new Date(goal.deadline).toISOString().split('T')[0] : '-',
+        progress: goal.progress,
     }
 }
 

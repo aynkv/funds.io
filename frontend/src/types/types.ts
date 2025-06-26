@@ -119,13 +119,28 @@ export interface Transaction {
 };
 
 /**
+ * Type of a constraint, either 'min', 'max', or 'percentage'.
+ */
+export type ConstraintType = 'min' | 'max' | 'percentage';
+
+/**
  * Represents a constraint on an account.
  */
 export interface Constraint {
     /**
+     * Unique identifier for the constraint.
+     */
+    _id: string;
+
+    /**
+     * Unique identifier for the user who owns the constraint.
+     */
+    userId: string;
+
+    /**
      * Type of the constraint, either 'min', 'max', or 'percentage'.
      */
-    type: 'min' | 'max' | 'percentage';
+    type: ConstraintType;
 
     /**
      * Value of the constraint.
@@ -168,14 +183,14 @@ export interface Goal {
     deadline?: string;
 
     /**
-     * Optional unique identifier for the account associated with the goal.
+     * Unique identifier for the account associated with the goal.
      */
-    accountId?: string;
+    accountId: string;
 
     /**
-     * List of constraints associated with the goal.
+     * Constraint associated with the goal.
      */
-    constraints: Constraint[];
+    constraintId: string;
 
     /**
      * Progress towards achieving the goal.
@@ -188,6 +203,18 @@ export interface Goal {
     createdAt: string;
 };
 
+export interface GoalFormInput {
+  name: string;
+  deadline?: string;
+  accountId?: string;
+  constraintId?: string;
+  createNewConstraint: boolean;
+  newConstraint?: {
+    type: ConstraintType;
+    value: number;
+  };
+}
+ 
 /**
  * Represents a notification for a user.
  */

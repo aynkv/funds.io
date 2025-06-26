@@ -29,7 +29,7 @@ connectDB();
 app.use('/api', userRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/transactions', transactionRoutes);
-app.use('/api/goals', goalRoutes)
+app.use('/api/goals', goalRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 io.on('connection', (socket) => {

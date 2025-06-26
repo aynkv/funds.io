@@ -14,3 +14,13 @@ export type TransactionDto = {
     description?: string;
     date: string;
 }
+
+
+export type GoalDto = {
+    _id: string;
+    name: string,
+    accountName: string;
+    targetAmount: number;
+    deadline: string;
+    progress: number;
+}
