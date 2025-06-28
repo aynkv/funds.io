@@ -34,7 +34,7 @@ export function transactionToDto(transaction: Transaction): TransactionDto {
         amount: transaction.amount,
         category: transaction.category,
         description: transaction.description,
-        date: dateFormatter(transaction.date),
+        createdAt: dateFormatter(transaction.date),
     }
 }
 
@@ -42,6 +42,8 @@ export function accountToDto(account: Account): AccountDto {
     return {
         _id: account._id,
         name: account.name,
+        type: account.type,
+        balance: account.balance,
         budget: account.budget,
         createdAt: new Date(account.createdAt).toISOString().split('T')[0],
     }
@@ -51,10 +53,11 @@ export function goalToDto(goal: Goal): GoalDto {
     return {
         _id: goal._id,
         name: goal.name,
-        accountName: goal.accountId,
+        accountName: goal.accountId.name,
         targetAmount: goal.targetAmount,
         deadline: goal.deadline ? new Date(goal.deadline).toISOString().split('T')[0] : '-',
         progress: goal.progress,
+        createdAt: goal.createdAt
     }
 }
 

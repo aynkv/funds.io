@@ -63,6 +63,15 @@ export interface Account {
     name: string;
 
     /**
+     * Type of an account.
+     */
+    type: 'credit' | 'debit';
+    /**
+     * Balance on this account
+     */
+    balance: number;
+
+    /**
      * Budget associated with the account.
      */
     budget: number;
@@ -185,7 +194,7 @@ export interface Goal {
     /**
      * Unique identifier for the account associated with the goal.
      */
-    accountId: string;
+    accountId: Account;
 
     /**
      * Constraint associated with the goal.

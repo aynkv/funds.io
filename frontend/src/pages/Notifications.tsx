@@ -1,7 +1,8 @@
 import { Notification } from "../types/types";
-import { markNotificationRead } from "../api/notifications";
+import { getNotifications, markNotificationRead } from "../api/notifications";
 import NotificationComponent from "../components/NotificationComponent";
 import "../css/Notifications.css";
+import { useEffect } from "react";
 
 interface NotificationProps {
     token: string;
@@ -10,6 +11,18 @@ interface NotificationProps {
 }
 
 function Notifications({ token, notifications, onUpdateNotifications }: NotificationProps) {
+
+    useEffect(() => {
+        const fetchLatest = async () => {
+            try {
+                const fresh = await getNotifications(token);
+                fresh.forEach(n => onUpdateNotifications(n));
+            } catch (err) {
+                console.error("Failed to refresh notifications", err);
+            }
+        };
+        fetchLatest();
+    }, [token]);
 
     async function handleMarkAsRead(id: string) {
         try {
@@ -26,7 +39,6 @@ function Notifications({ token, notifications, onUpdateNotifications }: Notifica
             <p>All your notifications, budget and spending alerts.</p>
 
             {notifications
-                // .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                 .map(n => (
                     <NotificationComponent
                         key={n._id} notification={n} onMarkAsRead={handleMarkAsRead} />)

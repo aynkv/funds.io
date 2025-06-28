@@ -1,22 +1,24 @@
 import axios from "axios";
 import { Constraint, Goal } from "../types/types";
 import { API_URL } from "../../constants/app-constants";
+import { getConfig } from "./apiUtils";
 
 /**
- * Returns the configuration object for axios requests with the authorization header.
+ * Fetches all goal constraints for the authenticated user.
  * @param token - The authentication token.
- * @returns The configuration object.
+ * @returns A promise resolving to an array of Constraint objects.
  */
-const getConfig = (token: string) => ({
-    headers: { Authorization: `Bearer ${token}` },
-});
-
-
 export const getConstraints = async (token: string): Promise<Constraint[]> => {
     const response = await axios.get(`${API_URL}/goals/constraints`, getConfig(token));
     return response.data;
 };
 
+/**
+ * Creates a new constraint for goals.
+ * @param token - The authentication token.
+ * @param constraint - The constraint object containing type and value.
+ * @returns A promise resolving to the created Constraint object.
+ */
 export const createConstraint = async (
     token: string,
     constraint: { type: string; value: number }
@@ -29,20 +31,24 @@ export const createConstraint = async (
     return response.data;
 }
 
+/**
+ * Fetches all goals for the authenticated user.
+ * @param token - The authentication token.
+ * @returns A promise resolving to an array of Goal objects.
+ */
 export const getGoals = async (token: string): Promise<Goal[]> => {
     const response = await axios.get(`${API_URL}/goals`, getConfig(token));
     return response.data;
 }
 
 /**
- * Creates a new goal using either an existing constraint or a new one.
+ * Creates a new goal using an existing constraint.
  * @param token - Auth token.
  * @param name - Name of the goal.
- * @param deadline - Optional deadline.
  * @param accountId - ID of the associated account.
- * @param useExistingConstraint - Whether to use an existing constraint.
- * @param constraintId - Existing constraint ID (required if using existing constraint).
- * @param newConstraint - New constraint data (required if creating new constraint).
+ * @param targetAmount - The target amount for the goal.
+ * @param constraintId - Existing constraint ID.
+ * @param deadline - Optional deadline for the goal.
  * @returns The created goal.
  */
 export const createGoal = async (
@@ -70,6 +76,12 @@ export const createGoal = async (
     return response.data;
 };
 
+/**
+ * Fetches the progress of a specific goal.
+ * @param token - The authentication token.
+ * @param goalId - The ID of the goal.
+ * @returns A promise resolving to an object containing the goal and its progress.
+ */
 export const getGoalProgress = async (token: string, goalId: string) => {
     const response = await axios.get(`${API_URL}/goals/${goalId}/progress`, getConfig(token));
     return response.data as { goal: Goal, progress: number };

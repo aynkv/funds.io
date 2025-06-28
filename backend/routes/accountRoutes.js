@@ -16,7 +16,7 @@ router.get('/', authMiddleware, async (req, res) => {
 
 // Create a new account
 router.post('/', authMiddleware, async (req, res) => {
-    const { name, budget } = req.body;
+    const { name, type, budget } = req.body;
     const io = req.app.get('io');
     try {
         const existingAccount = await Account.findOne({ userId: req.user.id, name });
@@ -35,6 +35,7 @@ router.post('/', authMiddleware, async (req, res) => {
         const account = new Account({
             userId: req.user.id,
             name,
+            type,
             budget,
         });
         await account.save();

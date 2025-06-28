@@ -1,15 +1,7 @@
 import axios from "axios";
 import { Account, Transaction } from "../types/types";
 import { API_URL } from "../../constants/app-constants";
-
-/**
- * Returns the configuration object for axios requests with the authorization header.
- * @param token - The authentication token.
- * @returns The configuration object.
- */
-const getConfig = (token: string) => ({
-    headers: { Authorization: `Bearer ${token}` },
-});
+import { getConfig } from "./apiUtils";
 
 /**
  * Fetches the list of accounts for the authenticated user.
@@ -28,8 +20,8 @@ export const getAccounts = async (token: string) => {
  * @param budget - The budget associated with the account.
  * @returns A promise that resolves to the created Account object.
  */
-export const createAccount = async (token: string, name: string, budget: number) => {
-    const response = await axios.post(`${API_URL}/accounts`, { name, budget }, getConfig(token));
+export const createAccount = async (token: string, name: string, type: string, budget: number) => {
+    const response = await axios.post(`${API_URL}/accounts`, { name, type, budget }, getConfig(token));
     return response.data as Account;
 };
 

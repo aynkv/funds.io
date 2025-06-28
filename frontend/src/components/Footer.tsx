@@ -4,7 +4,7 @@ function Footer() {
     return (
         <div className="footer-wrapper">
             <footer>
-                © 2025 funds.io All rights reserved
+                © 2025 funds.io | All rights reserved
             </footer>
         </div>
     )

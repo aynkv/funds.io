@@ -33,8 +33,8 @@ function AppContent() {
   useEffect(() => {
     setLogoutFunction(logout);
     if (token) {
-      fetchInitialData();
-      socket.auth = { userId: token }; // TODO: think on this
+      fetchInitialData(token);
+      socket.auth = { userId: token };
       socket.connect();
 
       socket.on('newTransaction', (tx: Transaction) => {
@@ -53,11 +53,11 @@ function AppContent() {
     }
   }, [token]);
 
-  const fetchInitialData = async () => {
+  const fetchInitialData = async (t: string) => {
     try {
       const [fetchedTransactions, fetchedNotifications] = await Promise.all([
-        getTransactions(token!),
-        getNotifications(token!),
+        getTransactions(t),
+        getNotifications(t),
       ]);
       setTransactions(fetchedTransactions);
       setNotifications(fetchedNotifications);

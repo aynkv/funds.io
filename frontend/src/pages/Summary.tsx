@@ -23,6 +23,15 @@ ChartJs.register(
     Title, Tooltip, Legend
 );
 
+/**
+ * Summary page component displaying financial visualizations.
+ * Fetches accounts and goals, calculates spending and progress,
+ * and renders Pie, Bar, and Line charts for user insights.
+ *
+ * @param token - The user's authentication token.
+ * @param transactions - Array of all user transactions.
+ * @returns The rendered summary page with charts.
+ */
 function Summary({ token, transactions }: { token: string; transactions: Transaction[] }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [goals, setGoals] = useState<Goal[]>([]);
@@ -31,6 +40,10 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         fetchData();
     }, [token]);
 
+    /**
+     * Fetches accounts and goals from the API,
+     * and updates state with progress for each goal.
+     */
     async function fetchData() {
         try {
             const fetchedAccounts = await getAccounts(token);
@@ -50,6 +63,7 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         }
     }
 
+    // Calculate total expenses per account for the pie chart
     const spendingAccounts = accounts.map((acc) => {
         const totalExpenses = transactions
             .filter((tx) => (tx.accountId as Account)._id === acc._id && tx.type === 'expense')
@@ -58,6 +72,7 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
     })
     .filter(acc => acc.totalExpenses > 0);
 
+    // Data for the spending pie chart
     const spendingData = {
         labels: spendingAccounts.map((acc) => acc.name),
         datasets: [
@@ -69,6 +84,7 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         ],
     };
 
+    // Data for the goals bar chart
     const goalData = {
         labels: goals.map((goal) => goal.name),
         datasets: [
@@ -85,12 +101,14 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         ]
     }
 
+    // Generate last 30 days for the trends chart
     const last30Days = Array.from({ length: 30 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
         return date.toISOString().split('T')[0];
     }).reverse();
 
+    // Calculate daily income and expenses for the line chart
     const transactionTrends = last30Days.map((date) => {
         const dailyTransactions = transactions
             .filter((tx) =>
@@ -106,6 +124,7 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         return { date, income, expense };
     });
 
+    // Data for the transaction trends line chart
     const trendData = {
         labels: last30Days,
         datasets: [
@@ -185,4 +204,5 @@ function Summary({ token, transactions }: { token: string; transactions: Transac
         </div>
     )
 }
+
 export default Summary;

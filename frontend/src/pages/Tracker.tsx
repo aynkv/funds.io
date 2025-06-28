@@ -1,26 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import '../css/Tracker.css';
 import { createAccount, createTransaction, getAccounts, getTransactions } from '../api/finance';
-import {  Constraint } from '../types/types';
+import { Constraint } from '../types/types';
 import { createConstraint, createGoal, getConstraints, getGoals } from '../api/goals';
 import { AccountDto, GoalDto, TransactionDto } from '../api/dto/dtos';
 import { accountToDto, goalToDto, transactionToDto } from '../util';
-
-interface FormData {
-    name?: string;
-    budget?: string;
-    transactionType?: 'income' | 'expense';
-    transactionAmount?: string;
-    accountId: string;
-    transactionCategory?: string;
-    transactionDescription?: string;
-    goalAccountId?: string;
-    goalDeadline?: string;
-    targetAmount?: string;
-    constraintId?: string;
-    newConstraintType?: 'min' | 'max' | 'percentage';
-    newConstraintValue?: string;
-}
 
 function Tracker({ token }: { token: string }) {
     const [accounts, setAccounts] = useState<AccountDto[]>([]);
@@ -28,8 +12,8 @@ function Tracker({ token }: { token: string }) {
     const [goals, setGoals] = useState<GoalDto[]>([]);
     const [constraints, setConstraints] = useState<Constraint[]>([]);
     const [activeTab, setActiveTab] = useState<'accounts' | 'transactions' | 'goals'>('accounts');
-    const [sortKey, setSortKey] = useState<string>('id');
-    const [sortAsc, setSortAsc] = useState<boolean>(true);
+    const [sortKey, setSortKey] = useState<string>('createdAt');
+    const [sortAsc, setSortAsc] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [formData, setFormData] = useState<any>({});
 
@@ -37,13 +21,20 @@ function Tracker({ token }: { token: string }) {
         fetchData();
     }, [token]);
 
+    /**
+     * Fetches all necessary data from the backend APIs:
+     * - Accounts
+     * - Transactions
+     * - Goals
+     * - Constraints
+     * Converts them to DTOs where necessary and updates the component state.
+     */
     async function fetchData() {
         try {
             const fetchedAccounts = await getAccounts(token);
             const accountDtos: AccountDto[] = [];
             fetchedAccounts.forEach(a => accountDtos.push(accountToDto(a)));
             setAccounts(accountDtos);
-
 
             const fetchedTransactions = await getTransactions(token);
             const transactionDtos: TransactionDto[] = [];
@@ -63,15 +54,33 @@ function Tracker({ token }: { token: string }) {
         }
     }
 
-    async function handleCreateAccount(accountName: string, accountBudget: number) {
+    /**
+     * Creates a new account using the provided name and budget.
+     * Updates the accounts state with the newly created account.
+     * 
+     * @param accountName - The name of the account to be created
+     * @param accountBudget - The initial budget of the account
+     */
+    async function handleCreateAccount(accountName: string, type: string, accountBudget: number) {
         try {
-            const account = await createAccount(token, accountName, accountBudget || 0);
+            const account = await createAccount(token, accountName, type, accountBudget || 0);
             setAccounts([...accounts, accountToDto(account)]);
+            fetchData();
         } catch (error) {
             console.error('Account creation failed: ', error);
         }
     }
 
+    /**
+     * Creates a new transaction associated with a specific account.
+     * Updates the transactions state with the new transaction.
+     * 
+     * @param transactionAccount - The account to which the transaction belongs
+     * @param transactionType - Either 'income' or 'expense'
+     * @param transactionAmount - The amount of the transaction as a string
+     * @param transactionCategory - Optional transaction category
+     * @param transactionDescription - Optional transaction description
+     */
     async function handleCreateTransaction(
         transactionAccount: AccountDto,
         transactionType: "income" | "expense",
@@ -89,23 +98,36 @@ function Tracker({ token }: { token: string }) {
                 transactionDescription
             );
             setTransactions([...transactions, transactionToDto(transaction)]);
+            fetchData();
         } catch (error) {
             console.error('Transaction creation failed: ', error);
         }
     }
 
-    async function handleCreateGoal(form: FormData) {
+    /**
+     * Creates a new goal, optionally creating a new constraint if one is not selected.
+     * Updates both goals and constraints states accordingly.
+     * 
+     * @param form - Object containing form data from the goal creation modal
+     */
+    async function handleCreateGoal(
+        goalAccount: AccountDto,
+        name: string,
+        targetAmount: string,
+        constraintId: string,
+        newConstraintType?: 'min' | 'max' | 'percentage',
+        newConstraintValue?: string,
+        goalDeadline?: string
+    ) {
         try {
-            if (!form.name || !form.goalAccountId || !form.targetAmount) {
+            if (!name || !goalAccount || !targetAmount) {
                 throw new Error("Missing required goal fields");
             }
 
-            let constraintId = form.constraintId;
-
-            if (!constraintId && form.newConstraintType && form.newConstraintValue) {
+            if (!constraintId && newConstraintType && newConstraintValue) {
                 const newConstraint = {
-                    type: form.newConstraintType,
-                    value: parseFloat(form.newConstraintValue),
+                    type: newConstraintType,
+                    value: parseFloat(newConstraintValue),
                 };
                 const response = await createConstraint(token, newConstraint);
                 constraintId = response._id;
@@ -118,23 +140,37 @@ function Tracker({ token }: { token: string }) {
 
             const goal = await createGoal(
                 token,
-                form.name,
-                form.goalAccountId,
-                parseFloat(form.targetAmount),
+                name,
+                goalAccount._id,
+                parseFloat(targetAmount),
                 constraintId,
-                form.goalDeadline,
+                goalDeadline,
             );
 
             setGoals([...goals, goalToDto(goal)]);
+            fetchData();
         } catch (error) {
             console.error('Goal creation failed:', error);
         }
     }
 
+    /**
+     * Returns the singular form of the current tab's type 
+     * (e.g., "accounts" => "Account").
+     * 
+     * @returns The singular entry type name
+     */
     const getCurrentEntryType = () => {
         return activeTab.slice(0, 1).toUpperCase() + activeTab.slice(1, -1);
     }
 
+    /**
+     * Toggles sorting order for a given key.
+     * If the same key is selected again, toggles the direction.
+     * Otherwise, updates the sort key and resets to ascending order.
+     * 
+     * @param key - The property name to sort by
+    */
     const toggleSort = (key: string) => {
         if (sortKey === key) {
             setSortAsc(!sortAsc);
@@ -144,6 +180,12 @@ function Tracker({ token }: { token: string }) {
         }
     };
 
+    /**
+     * Returns a sorted copy of the current active tab's data 
+     * (accounts, transactions, or goals) based on the selected sort key and direction.
+     * 
+     * @returns Sorted data array
+     */
     const sortedData = () => {
         let data: any[] = [];
         if (activeTab === 'accounts') data = accounts;
@@ -157,39 +199,51 @@ function Tracker({ token }: { token: string }) {
         });
     };
 
-    const sortedDataCleanup = () => {
-        const sorted = sortedData();
-        sorted.forEach(entry => {
-            if (activeTab === 'accounts' || activeTab === 'goals') {
-                delete entry._id;
-            }
-        });
-        return sorted;
-    }
-
+    /**
+     * Opens the modal form and resets the form data.
+     */
     const openModal = () => {
         setFormData({});
         setModalOpen(true);
     };
 
+    /**
+     * Closes the modal form.
+     */
     const closeModal = () => {
         setModalOpen(false);
     };
 
+    /**
+     * Handles changes to form input fields in the modal.
+     * Updates the `formData` state accordingly.
+     * 
+     * @param e - The change event from an input or select field
+     */
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev: any) => ({ ...prev, [name]: value }));
     };
 
+    /**
+     * Handles form submission depending on the active tab:
+     * - 'accounts': Calls `handleCreateAccount`
+     * - 'transactions': Calls `handleCreateTransaction`
+     * - 'goals': Calls `handleCreateGoal`
+     * Closes the modal after creation.
+     * 
+     * @param e - The form submission event
+     */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (activeTab === 'accounts') {
             const newAccount = {
                 name: formData.name,
+                type: formData.type,
                 budget: parseFloat(formData.budget),
             };
 
-            handleCreateAccount(newAccount.name, newAccount.budget);
+            handleCreateAccount(newAccount.name, newAccount.type, newAccount.budget);
         } else if (activeTab === 'transactions') {
             const account: AccountDto = accounts.find(acc => acc.name === formData.accountId)!;
             handleCreateTransaction(
@@ -199,7 +253,16 @@ function Tracker({ token }: { token: string }) {
                 formData.transactionCategory,
                 formData.transactionDescription);
         } else if (activeTab === 'goals') {
-            handleCreateGoal(formData);
+            const account: AccountDto = accounts.find(acc => acc._id === formData.goalAccountId)!;
+            handleCreateGoal(
+                account,
+                formData.name,
+                formData.targetAmount,
+                formData.constraintId,
+                formData.newConstraintType,
+                formData.newConstraintValue,
+                formData.goalDeadline
+            );
         }
         closeModal();
     };
@@ -238,6 +301,7 @@ function Tracker({ token }: { token: string }) {
                             {activeTab === 'accounts' && (
                                 <>
                                     <th onClick={() => toggleSort('name')} className={sortKey === 'name' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Name</th>
+                                    <th onClick={() => toggleSort('balance')} className={sortKey === 'balance' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Credit/Debit</th>
                                     <th onClick={() => toggleSort('budget')} className={sortKey === 'budget' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Budget</th>
                                     <th onClick={() => toggleSort('createdAt')} className={sortKey === 'createdAt' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Date Created</th>
                                 </>
@@ -251,28 +315,55 @@ function Tracker({ token }: { token: string }) {
                                     <th onClick={() => toggleSort('amount')} className={sortKey === 'amount' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Amount</th>
                                     <th onClick={() => toggleSort('category')} className={sortKey === 'category' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Category</th>
                                     <th onClick={() => toggleSort('description')} className={sortKey === 'description' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Description</th>
-                                    <th onClick={() => toggleSort('date')} className={sortKey === 'date' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Date</th>
+                                    <th onClick={() => toggleSort('createdAt')} className={sortKey === 'date' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Date</th>
                                 </>
                             )}
                             {activeTab === 'goals' && (
                                 <>
-                                    <th onClick={() => toggleSort('name')} className={sortKey === 'name' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Name</th>
+                                    <th onClick={() => toggleSort('name')} className={sortKey === 'name' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Goal</th>
+                                    <th onClick={() => toggleSort('accountName')} className={sortKey === 'accountName' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Account</th>
                                     <th onClick={() => toggleSort('progress')} className={sortKey === 'progress' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Current</th>
                                     <th onClick={() => toggleSort('targetAmount')} className={sortKey === 'targetAmount' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Target</th>
                                     <th onClick={() => toggleSort('deadline')} className={sortKey === 'deadline' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Deadline</th>
-                                    <th onClick={() => toggleSort('accountName')} className={sortKey === 'accountName' ? (sortAsc ? 'sort-asc' : 'sort-desc') : ''}>Account</th>
                                 </>
                             )}
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedDataCleanup().map((entry) => (
-                            <tr key={entry._id}>
-                                {Object.keys(entry).map((key) => (
-                                    <td key={key} data-label={key}>{entry[key] || '-'}</td>
-                                ))}
-                            </tr>
-                        ))}
+                        {sortedData().map((entry) => {
+                            if (activeTab === 'goals') {
+                                return (
+                                    <tr key={entry._id}>
+                                        <td data-label="name">{entry.name}</td>
+                                        <td data-label="accountName">{entry.accountName}</td>
+                                        <td data-label="progress">${entry.progress?.toFixed(2)}</td>
+                                        <td data-label="targetAmount">${entry.targetAmount?.toFixed(2)}</td>
+                                        <td data-label="deadline">{entry.deadline || '-'}</td>
+                                    </tr>
+                                )
+                            } else if (activeTab === 'accounts') {
+                                return (
+                                    <tr key={entry._id}>
+                                        <td data-label="name">{entry.name}</td>
+                                        <td data-label="balance">${entry.balance.toFixed(2)}</td>
+                                        <td data-label="budget">{entry.budget ? `$${entry.budget.toFixed(2)}` : 'N/A'}</td>
+                                        <td data-label="createdAt">{entry.createdAt}</td>
+                                    </tr>
+                                )
+                            } else {
+                                return (
+                                    <tr key={entry._id}>
+                                        <td data-label="_id">{entry._id}</td>
+                                        <td data-label="accountName">{entry.accountName}</td>
+                                        <td data-label="type">{entry.type}</td>
+                                        <td data-label="amount">${entry.amount.toFixed(2)}</td>
+                                        <td data-label="category">{entry.category || '-'}</td>
+                                        <td data-label="description">{entry.description || '-'}</td>
+                                        <td data-label="date">{entry.createdAt}</td>
+                                    </tr>
+                                )
+                            }
+                        })}
                     </tbody>
                 </table>
             </div>
@@ -291,6 +382,16 @@ function Tracker({ token }: { token: string }) {
                                         onChange={handleInputChange}
                                         required
                                     />
+                                    <select
+                                        name="type"
+                                        value={formData.type || ''}
+                                        onChange={handleInputChange}
+                                    >
+                                        <option value="">Choose Type</option>
+                                        {["credit", "debit"].map((t, k) => (
+                                            <option key={k} value={t}>{t}</option>
+                                        ))}
+                                    </select>
                                     <input
                                         type="number"
                                         name="budget"
@@ -308,7 +409,7 @@ function Tracker({ token }: { token: string }) {
                                         onChange={handleInputChange}
                                         required
                                     >
-                                        <option value="" disabled>Type</option>
+                                        <option value="">Type</option>
                                         {["income", "expense"].map((t, k) => (
                                             <option key={k} value={t}>{t}</option>
                                         ))}
@@ -328,9 +429,16 @@ function Tracker({ token }: { token: string }) {
                                         required
                                     >
                                         <option value="" disabled>Select Account</option>
-                                        {accounts.map((acc) => (
-                                            <option key={acc.createdAt} value={acc.name}>{acc.name}</option>
-                                        ))}
+                                        {accounts
+                                            .filter((a) => {
+                                                if (!formData.transactionType) return true;
+                                                return formData.transactionType === 'income'
+                                                    ? a.type === 'debit'
+                                                    : a.type === 'credit';
+                                            })
+                                            .map((acc) => (
+                                                <option key={acc.createdAt} value={acc.name}>{acc.name}</option>
+                                            ))}
                                     </select>
                                     <input
                                         type="text"
@@ -396,25 +504,26 @@ function Tracker({ token }: { token: string }) {
                                         ))}
                                     </select>
 
-                                    <div className="new-constraint">
-                                        <select name="newConstraintType" onChange={handleInputChange}>
-                                            <option value="">Select Constraint Type</option>
-                                            <option value="min">Minimum</option>
-                                            <option value="max">Maximum</option>
-                                            <option value="percentage">Percentage</option>
-                                        </select>
-                                        <input
-                                            type="number"
-                                            name="newConstraintValue"
-                                            placeholder="Constraint Value"
-                                            value={formData.newConstraintValue || ''}
-                                            onChange={handleInputChange}
-                                            required
-                                            min="0"
-                                            step={formData.newConstraintType === 'percentage' ? '0.1' : '0.01'}
-                                        />
-                                    </div>
-
+                                    {!formData.constraintId &&
+                                        <div className="new-constraint">
+                                            <select name="newConstraintType" onChange={handleInputChange}>
+                                                <option value="">Select Constraint Type</option>
+                                                <option value="min">Minimum</option>
+                                                <option value="max">Maximum</option>
+                                                <option value="percentage">Percentage</option>
+                                            </select>
+                                            <input
+                                                type="number"
+                                                name="newConstraintValue"
+                                                placeholder="Constraint Value"
+                                                value={formData.newConstraintValue || ''}
+                                                onChange={handleInputChange}
+                                                required
+                                                min="0"
+                                                step={formData.newConstraintType === 'percentage' ? '0.1' : '0.01'}
+                                            />
+                                        </div>
+                                    }
                                 </>
                             )}
                             <button type="submit">Add</button>
