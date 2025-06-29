@@ -28,11 +28,19 @@
   flex: 1;
 }
 
+.admin-table-wrapper {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  background: #f9fafb;
+}
+
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #f9fafb;
+  background-color: transparent;
   border: 1px solid #ddd;
+  table-layout: fixed;
   border-radius: 6px;
   overflow: hidden;
 }
@@ -42,6 +50,7 @@
   padding: 0.75rem;
   background-color: #e5e7eb;
   font-weight: bold;
+  background-clip: padding-box;
 }
 
 .admin-td {
@@ -51,7 +60,8 @@
 
 .admin-button {
   margin-right: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  margin-left: 1rem;
+  padding: 0.65rem 0.75rem;
   font-size: 0.9rem;
   background-color: #f3f4f6;
   border: 1px solid #ccc;

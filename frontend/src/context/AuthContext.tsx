@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextType {
   token: string | null;
   role: string | null;
+  userId: string | null;
   login: (newToken: string) => void;
   logout: (errorMessage?: string) => void;
 }
@@ -29,13 +30,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     if (token && !role) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setRole(payload.role || 'user');
+        setUserId(payload.id || null);
       } catch (error) {
         console.error('Failed to decode token:', error);
         setRole('user');
@@ -55,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const payload = JSON.parse(atob(newToken.split('.')[1]));
       setRole(payload.role || 'user');
+      setUserId(payload._id || null);
     } catch (err) {
       console.error('Failed to decode token:', err);
       setRole('user');
@@ -76,7 +80,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, role, login, logout }}>
+    <AuthContext.Provider value={{ token, role, userId, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

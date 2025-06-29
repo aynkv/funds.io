@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { getAllUsers, deleteUser } from '../api/users';
+import { getAllUsers, deleteUser, updateUserRole } from '../api/users';
 import { useAuth } from '../context/AuthContext';
 import { User } from '../types/types';
 import '../css/Admin.css';
 
 function Admin() {
-  const { token, role } = useAuth();
+  const { token, role, userId } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [error, setError] = useState('');
@@ -39,9 +39,9 @@ function Admin() {
       const s = search.toLowerCase();
       filtered = filtered.filter(
         (u) =>
-          u.firstName.toLowerCase().includes(s) ||
-          u.lastName.toLowerCase().includes(s) ||
-          u.email.toLowerCase().includes(s)
+          u.firstName?.toLowerCase().includes(s) ||
+          u.lastName?.toLowerCase().includes(s) ||
+          u.email?.toLowerCase().includes(s)
       );
     }
     if (roleFilter) {
@@ -62,8 +62,18 @@ function Admin() {
     }
   }
 
-  function handleChangeRole(userId: string) {
-    alert(`Implement role change logic for user ${userId}`);
+  async function handleChangeRole(userId: string, newRole: string) {
+    if (newRole !== 'admin' && newRole !== 'user') {
+      return;
+    }
+    try {
+      if (token) {
+        await updateUserRole(token, userId, newRole);
+        setUsers(users.map(u => u._id === userId ? { ...u, role: newRole } : u));
+      }
+    } catch (error: any) {
+      setError(error.message || 'Failed to update user role');
+    }
   }
 
   if (role !== 'admin') {
@@ -95,40 +105,45 @@ function Admin() {
         </select>
       </div>
 
-      <table className="admin-table">
-        <thead>
-          <tr>
-            <th className="admin-th">Name</th>
-            <th className="admin-th">Email</th>
-            <th className="admin-th">Role</th>
-            <th className="admin-th">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user._id}>
-              <td className="admin-td">{user.firstName}</td>
-              <td className="admin-td">{user.lastName}</td>
-              <td className="admin-td">{user.email}</td>
-              <td className="admin-td">{user.role}</td>
-              <td className="admin-td">
-                <button
-                  onClick={() => handleChangeRole(user._id)}
-                  className="admin-button"
-                >
-                  Change Role
-                </button>
-                <button
-                  onClick={() => handleDeleteUser(user._id)}
-                  className="admin-button delete"
-                >
-                  Delete
-                </button>
-              </td>
+      <div className="admin-table-wrapper">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th className="admin-th">Name</th>
+              <th className="admin-th">Email</th>
+              <th className="admin-th">Role</th>
+              <th className="admin-th">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user) => (
+              <tr key={user._id}>
+                <td className="admin-td">{user.firstName} {user.lastName}</td>
+                <td className="admin-td">{user.email}</td>
+                <td className="admin-td">{user.role}</td>
+                <td className="admin-td">
+                  <select
+                    value={user.role}
+                    onChange={(e) => handleChangeRole(user._id, e.target.value)}
+                    className="admin-select"
+                    disabled={user._id === userId}
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <button
+                    onClick={() => handleDeleteUser(user._id)}
+                    className="admin-button delete"
+                  >
+                    Delete
+                  </button>
+                </td>
+
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {filteredUsers.length === 0 && <p>No users found.</p>}
     </div>

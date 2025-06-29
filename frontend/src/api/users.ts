@@ -37,6 +37,23 @@ export async function getAllUsers(token: string) {
 }
 
 /**
+ * Update a user's role (admin only)
+ */
+export const updateUserRole = async (token: string, userId: string, newRole: string) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/users/${userId}/role`,
+      { role: newRole },
+      getConfig(token)
+    );
+    return response.data;
+  } catch (error: any) {
+    const message = error.response?.data?.message || 'Failed to update user role';
+    throw new Error(message);
+  }
+};
+
+/**
  * Deletes a user by ID (admin only).
  * @param token - The authentication token.
  * @param id - The ID of the user to delete.

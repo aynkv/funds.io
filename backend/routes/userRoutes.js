@@ -55,6 +55,32 @@ router.get('/users', authMiddleware, async (req, res) => {
     res.json(users);
 });
 
+// Update a user's role (admin-only)
+router.put('/users/:id/role', authMiddleware, async (req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { role } = req.body;
+    if (!['admin', 'user'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role' });
+    }
+
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.role = role;
+        await user.save();
+
+        res.json({ message: 'Role updated', user: { _id: user._id, email: user.email, role: user.role } });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // Delete a user (admin-only)
 router.delete('/users/:id', authMiddleware, async (req, res) => {
     if (req.user.role !== 'admin') {

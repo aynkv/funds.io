@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getAccounts, getTransactions } from '../api/finance';
+import { getAccounts } from '../api/finance';
 import { getGoals, getGoalProgress } from '../api/goals';
 import { getNotifications } from '../api/notifications';
-import { Account, Goal, Notification, Transaction } from '../types/types';
+import { Account, Goal, Notification } from '../types/types';
 import '../css/Dashboard.css';
 
 function Dashboard({ token }: { token: string }) {
